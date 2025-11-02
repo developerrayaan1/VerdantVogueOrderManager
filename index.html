@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verdant Vogue • Order Manager</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e8f5e9, #ffffff);
+      margin: 0;
+      padding: 30px;
+      color: #2c3e50;
+    }
+
+    h1 {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      color: #1b5e20;
+      margin-bottom: 40px;
+      font-size: 36px;
+    }
+
+    #search-bar, #address-filter {
+      display: block;
+      margin: 0 auto 25px auto;
+      width: 320px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 30px;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      outline: none;
+      transition: 0.3s;
+    }
+
+    #search-bar:focus, #address-filter:focus {
+      border-color: #66bb6a;
+      box-shadow: 0 4px 12px rgba(102,187,106,0.3);
+    }
+
+    .order-box {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+
+    .order-box:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .order-box h2 {
+      font-size: 22px;
+      margin-top: 0;
+      color: #1b5e20;
+    }
+
+    .order-details p {
+      margin: 6px 0;
+      line-height: 1.5;
+    }
+
+    .product-image {
+      display: block;
+      width: 160px;
+      height: 110px;
+      margin: 0 auto 20px;
+      border-radius: 10px;
+      object-fit: cover;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .actions {
+      margin-top: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .actions button {
+      flex: 1;
+      min-width: 160px;
+      padding: 12px 15px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      color: white;
+      transition: 0.3s;
+    }
+
+    .delivered-btn {
+      background: linear-gradient(45deg, #43a047, #66bb6a);
+    }
+
+    .cancel-btn {
+      background: linear-gradient(45deg, #e53935, #ef5350);
+    }
+
+    .arriving-btn {
+      background: linear-gradient(45deg, #fdd835, #ffeb3b);
+      color: #333;
+    }
+
+    .actions button:hover {
+      transform: scale(1.03);
+      opacity: 0.95;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      .order-box {
+        padding: 20px;
+      }
+
+      #search-bar, #address-filter {
+        width: 90%;
+      }
+    }
+  </style>
+
+  <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+  <script>
+    var OneSignal = window.OneSignal || [];
+    OneSignal.push(function() {
+      OneSignal.init({
+        appId: "d7466839-9d7a-4e33-85d5-2cfcdd051300", // You can update with Verdant Vogue App ID if using
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <h1>Verdant Vogue • Order Manager</h1>
+
+  <input type="text" id="search-bar" placeholder="Search by customer name">
+  <select id="address-filter">
+    <option value="">Filter by Address</option>
+    <option value="azad gunj">Azad Gunj</option>
+    <option value="gousia colony">Gousia Colony</option>
+    <option value="jamia mohalla">Jamia Mohalla</option>
+    <option value="sheikh ul alam colony">Sheikh Ul Alam Colony</option>
+    <option value="gulshan abad">Gulshan Abad</option>
+    <option value="iqbal colony">Iqbal Colony</option>
+    <option value="stadium colony">Stadium Colony</option>
+    <option value="prem gali">Prem Gali</option>
+    <option value="kanil bagh">Kanil Bagh</option>
+    <option value="sangri colony">Sangri Colony</option>
+    <option value="arampora">Arampora</option>
+    <option value="chesti colony">Chesti Colony</option>
+    <option value="ushkura">Ushkura</option>
+    <option value="friends colony">Friends Colony</option>
+    <option value="syed karim">Syed Karim</option>
+    <option value="deewan bagh">Deewan Bagh</option>
+    <option value="old town">Old Town</option>
+    <option value="jalal sahib">Jalal Sahib</option>
+    <option value="bunglow bagh">Bunglow Bagh</option>
+    <option value="bagh islam">Bagh Islam</option>
+    <option value="khawaja sahib">Khawaja Sahib</option>
+    <option value="tawheed gunj">Tawheed Gunj</option>
+    <option value="kokarhamam">Kokarhamam</option>
+    <option value="sohail colony">Sohail Colony</option>
+    <option value="khawaja bagh">Khawaja Bagh</option>
+    <option value="khanpora">Khanpora</option>
+    <option value="kanispora">Kanispora</option>
+    <option value="singh bagh">Singh Bagh</option>
+  </select>
+
+  <div id="orders-container"></div>
+
+  <script>
+    // Add your Airtable API key and Base ID here ↓
+    const apiKey = 'patdI0Ex5ZL7L6nL4.35157678a878892abefd52203531f29008eb4baf59769bff8ffb0d8580dc0ecf'; // 🔑 Add your API key
+    const baseId = 'appGcAsK857xylatZ'; // 🗄️ Add your Base ID
+    const ordersTable = 'Orders';
+    const productTable = 'ProductDetails';
+
+    async function fetchData(tableName) {
+      try {
+        const response = await fetch(`https://api.airtable.com/v0/${baseId}/${tableName}`, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        });
+        const data = await response.json();
+        return data.records || [];
+      } catch (err) {
+        console.error('Fetch error:', err);
+        alert('Error fetching data.');
+        return [];
+      }
+    }
+
+    function renderOrders(orders, products) {
+      const container = document.getElementById('orders-container');
+      container.innerHTML = '';
+
+      orders.forEach(order => {
+        if (order.fields.Status === 'Delivered') return;
+
+        const product = products.find(p => p.fields.Name === order.fields.ProductName);
+        const imageUrl = product?.fields.Image?.[0]?.url || '';
+
+        const box = document.createElement('div');
+        box.className = 'order-box';
+        box.innerHTML = `
+          ${imageUrl ? `<img src="${imageUrl}" alt="${order.fields.ProductName}" class="product-image">` : ''}
+          <h2>${order.fields.ProductName}</h2>
+          <div class="order-details">
+            <p><strong>Quantity:</strong> ${order.fields.Quantity}</p>
+            <p><strong>Total Price:</strong> ₹${order.fields.TotalPrice}</p>
+            <p><strong>Delivery Charges:</strong> ₹${order.fields.DeliveryCharges}</p>
+            <p><strong>Name:</strong> ${order.fields.Name}</p>
+            <p><strong>Phone:</strong> ${order.fields.PhoneNumber}</p>
+            <p><strong>Email:</strong> ${order.fields.Email}</p>
+            <p><strong>Address:</strong> ${order.fields.Address}</p>
+            <p><strong>City:</strong> ${order.fields.City}</p>
+            <p><strong>State:</strong> ${order.fields.State}</p>
+            <p><strong>Payment:</strong> ${order.fields.PaymentMethod}</p>
+            <p><strong>Status:</strong> ${order.fields.Status}</p>
+          </div>
+          <div class="actions">
+            <button class="arriving-btn" onclick="markArriving('${order.id}')">Arriving within 48 hours</button>
+            <button class="delivered-btn" onclick="markDelivered('${order.id}')">Delivered</button>
+            <button class="cancel-btn" onclick="cancelOrder('${order.id}')">Cancel</button>
+          </div>
+        `;
+        container.appendChild(box);
+      });
+    }
+
+    async function loadOrders() {
+      const [orders, products] = await Promise.all([
+        fetchData(ordersTable),
+        fetchData(productTable)
+      ]);
+      renderOrders(orders, products);
+    }
+
+    loadOrders();
+
+    // Filters
+    document.getElementById('search-bar').addEventListener('input', async (e) => {
+      const val = e.target.value.toLowerCase();
+      const [orders, products] = await Promise.all([
+        fetchData(ordersTable),
+        fetchData(productTable)
+      ]);
+      renderOrders(orders.filter(o => o.fields.Name?.toLowerCase().includes(val)), products);
+    });
+
+    document.getElementById('address-filter').addEventListener('change', async (e) => {
+      const val = e.target.value.toLowerCase();
+      const [orders, products] = await Promise.all([
+        fetchData(ordersTable),
+        fetchData(productTable)
+      ]);
+      const filtered = val
+        ? orders.filter(o => o.fields.Address?.toLowerCase().includes(val))
+        : orders;
+      renderOrders(filtered, products);
+    });
+
+    // Update functions
+    async function markArriving(orderId) {
+      await updateOrderStatus(orderId, 'Arriving within 48 hours');
+    }
+
+    async function markDelivered(orderId) {
+      await updateOrderStatus(orderId, 'Delivered');
+    }
+
+    async function cancelOrder(orderId) {
+      await updateOrderStatus(orderId, 'Cancelled');
+    }
+
+    async function updateOrderStatus(orderId, status) {
+      try {
+        const res = await fetch(`https://api.airtable.com/v0/${baseId}/${ordersTable}/${orderId}`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ fields: { Status: status } })
+        });
+        if (res.ok) {
+          alert(`Order status updated to ${status}`);
+          loadOrders();
+        } else {
+          throw new Error('Failed to update order');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error updating order status.');
+      }
+    }
+  </script>
+
+</body>
+</html>
